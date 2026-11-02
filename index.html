@@ -115,6 +115,7 @@ footer{text-align:center;padding:30px;color:var(--muted)}
 .character-card .portrait.failed img{display:none}
 .character-card .portrait.failed{border:1px solid color-mix(in srgb,var(--primary) 45%,transparent)}
 .character-card strong{display:block;margin:8px 0 2px;color:var(--text);font-size:14px}
+.character-card-actions{display:flex;gap:6px;margin-top:9px;justify-content:center;flex-wrap:wrap}.character-card-actions button{font-size:11px;padding:7px 9px}.upload-preview{width:104px;height:104px;object-fit:contain;border-radius:14px;border:1px solid #ffffff30;background:#ffffff0b;padding:5px;display:block;margin:10px auto}.upload-preview[hidden]{display:none}
 #characterImageUpload{padding:10px;background:#211b25}
 .upload-note{font-size:12px;color:var(--muted)}
 .character-card small{color:var(--muted)}
@@ -299,7 +300,8 @@ footer{text-align:center;padding:30px;color:var(--muted)}
   <h2>Upload Your Character Images 📷</h2>
   <p>Apne device se kisi bhi character ki image upload karo. Pehle character select karo, phir image choose karo. Image sirf isi browser mein save hogi.</p>
   <label for="uploadCharacterSelect">Select character</label>
-  <select id="uploadCharacterSelect"></select>
+  <select id="uploadCharacterSelect" onchange="updateUploadPreview()"></select>
+  <img id="uploadImagePreview" class="upload-preview" alt="Selected character image preview" hidden>
   <label for="characterImageUpload">Choose character image</label>
   <input id="characterImageUpload" type="file" accept="image/*" onchange="uploadCharacterImage()">
   <div class="actions">
@@ -397,10 +399,12 @@ function characterGlyph(id){
 function attachPortraitFallback(img){img.addEventListener('error',()=>{img.dataset.failed='true';img.style.opacity='0';img.title='Online portrait unavailable; decorative character emblem shown.';});}
 function renderCharacterCollection(){
  const host=document.getElementById('characterCollection');
- host.innerHTML=characterData.map(c=>`<button class="card character-card" onclick="setTheme('${c.id}')"><span class="portrait"><span class="portrait-fallback" aria-hidden="true">${characterGlyph(c.id)}</span><img loading="lazy" src="${characterImage(c)}" alt="${c.name}" onerror="this.parentElement.classList.add('failed')"></span><strong>${c.name}</strong><small>${uploadedCharacterImages[c.id]?'Your uploaded image':'Official portrait'}</small></button>`).join('');
+ host.innerHTML=characterData.map(c=>`<div class="card character-card"><span class="portrait"><span class="portrait-fallback" aria-hidden="true">${characterGlyph(c.id)}</span><img loading="lazy" src="${characterImage(c)}" alt="${c.name}" onerror="this.parentElement.classList.add('failed')"></span><strong>${c.name}</strong><small>${uploadedCharacterImages[c.id]?'Your uploaded image':'Official portrait'}</small><div class="character-card-actions"><button type="button" onclick="setTheme('${c.id}')">Select</button><button type="button" onclick="selectCharacterForUpload('${c.id}')">📷 Upload image</button></div></div>`).join('');
  const select=document.getElementById('uploadCharacterSelect');
- if(select){const previous=select.value;select.innerHTML=characterData.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');select.value=characterData.some(c=>c.id===previous)?previous:activeCharacter;}
+ if(select){const previous=select.value;select.innerHTML=characterData.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');select.value=characterData.some(c=>c.id===previous)?previous:activeCharacter;updateUploadPreview();}
 }
+function selectCharacterForUpload(id){const select=document.getElementById('uploadCharacterSelect');select.value=id;updateUploadPreview();document.getElementById('characterImageUpload').click();}
+function updateUploadPreview(){const id=document.getElementById('uploadCharacterSelect')?.value;const preview=document.getElementById('uploadImagePreview');if(!preview||!id)return;const src=uploadedCharacterImages[id];if(src){preview.src=src;preview.hidden=false;}else{preview.removeAttribute('src');preview.hidden=true;}}
 function uploadCharacterImage(){
  const picker=document.getElementById('characterImageUpload');
  const file=picker.files&&picker.files[0];
@@ -422,7 +426,7 @@ function uploadCharacterImage(){
    catch(e){delete uploadedCharacterImages[id];status.textContent='Browser storage is full. Try a smaller image.';return;}
    renderCharacterCollection();
    if(activeCharacter===id)setTheme(id);
-   status.textContent='Image uploaded for '+characterData.find(c=>c.id===id).name+' ♡';
+   status.textContent='Image uploaded for '+characterData.find(c=>c.id===id).name+' ♡';updateUploadPreview();
    picker.value='';
   };
   img.onerror=()=>status.textContent='Could not read this image. Try another file.';
@@ -438,7 +442,7 @@ function removeCharacterImage(){
  try{localStorage.setItem('yoruCharacterImages',JSON.stringify(uploadedCharacterImages));}catch(e){}
  renderCharacterCollection();
  if(activeCharacter===id)setTheme(id);
- document.getElementById('characterUploadStatus').textContent='Uploaded image removed. Official portrait restored.';
+ document.getElementById('characterUploadStatus').textContent='Uploaded image removed. Official portrait restored.';updateUploadPreview();
 }
 function setTheme(name){
  const c=characterData.find(x=>x.id===name);if(!c)return;
