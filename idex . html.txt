@@ -1,0 +1,755 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yoru no Kakurega ♡</title>
+
+<style>
+:root {
+  --accent:#d99a64;
+  --accent2:#e9a7a0;
+  --bg:#100b0d;
+  --panel:#211519;
+  --text:#fff0e5;
+  --muted:#c5a9a0;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse at top,#43252d 0%,#160e13 48%,#09070a 100%);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+  min-height:100vh;
+}
+
+button,input,textarea,select{font:inherit}
+
+button{
+  cursor:pointer;
+  border:1px solid var(--accent);
+  background:#382129;
+  color:var(--text);
+  border-radius:12px;
+  padding:11px 15px;
+  transition:.25s;
+}
+
+button:hover{
+  background:var(--accent);
+  color:#1a1010;
+  transform:translateY(-2px);
+}
+
+.app{
+  display:grid;
+  grid-template-columns:245px 1fr;
+  min-height:100vh;
+}
+
+.sidebar{
+  background:#160e13eF;
+  border-right:1px solid #68404a;
+  padding:24px 16px;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
+
+.logo{
+  font-family:Georgia,serif;
+  font-size:23px;
+  color:#f2c49b;
+  margin-bottom:5px;
+}
+
+.tagline{
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-bottom:30px;
+}
+
+.nav{
+  display:grid;
+  gap:9px;
+}
+
+.nav button{
+  text-align:left;
+  border-color:transparent;
+  background:transparent;
+}
+
+.nav button.active,
+.nav button:hover{
+  background:#55313b;
+  border-color:var(--accent);
+  color:#fff;
+}
+
+.main{
+  padding:28px;
+  max-width:1450px;
+  width:100%;
+  margin:auto;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:28px;
+}
+
+.status{
+  color:#b8d59a;
+  font-size:12px;
+}
+
+.page{display:none;animation:fade .35s ease}
+.page.active{display:block}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.panel{
+  background:linear-gradient(145deg,#35212a,#1c1118);
+  border:1px solid #69434c;
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 15px 40px #0005;
+  margin-bottom:18px;
+}
+
+.hero{
+  min-height:350px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:
+    linear-gradient(#140c1199,#140c11c9),
+    url("https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=1600")
+    center/cover;
+  border:1px solid #94624f;
+  border-radius:25px;
+  padding:35px;
+}
+
+.hero h1{
+  font-family:Georgia,serif;
+  font-size:clamp(34px,6vw,65px);
+  color:#f6c99e;
+  margin:10px 0;
+}
+
+.hero p{color:#f0d6ce}
+
+.eyebrow{
+  color:var(--accent);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-size:11px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;
+}
+
+h2,h3{font-family:Georgia,serif}
+h2{color:#f4c49e}
+
+input,textarea,select{
+  width:100%;
+  background:#120c10;
+  color:white;
+  border:1px solid #79515c;
+  border-radius:11px;
+  padding:12px;
+  margin:7px 0 14px;
+}
+
+textarea{min-height:110px;resize:vertical}
+
+.small{font-size:12px;color:var(--muted)}
+
+.character-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(125px,1fr));
+  gap:12px;
+  margin:18px 0;
+}
+
+.character{
+  padding:14px 8px;
+  text-align:center;
+  background:#291923;
+  border:1px solid #65414d;
+  border-radius:15px;
+  cursor:pointer;
+}
+
+.character:hover,.character.selected{
+  border:2px solid var(--accent);
+  background:#593340;
+}
+
+.character .emoji{font-size:30px;display:block;margin-bottom:7px}
+
+.chatbox{
+  height:330px;
+  overflow:auto;
+  padding:15px;
+  background:#130d12;
+  border-radius:15px;
+  border:1px solid #69434c;
+  margin-bottom:12px;
+}
+
+.message{
+  padding:11px 14px;
+  border-radius:14px;
+  background:#4b303c;
+  margin:10px 0;
+  max-width:80%;
+  line-height:1.5;
+}
+
+.message.mine{
+  margin-left:auto;
+  background:#765044;
+}
+
+.message small{
+  display:block;
+  font-size:10px;
+  opacity:.7;
+  margin-top:5px;
+}
+
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0}
+
+.memory{
+  padding:15px;
+  background:#30202a;
+  border:1px solid #69434c;
+  border-radius:14px;
+  margin:10px 0;
+}
+
+.preview{
+  width:100%;
+  max-width:230px;
+  max-height:250px;
+  object-fit:cover;
+  border-radius:16px;
+  border:1px solid var(--accent);
+}
+
+.lantern{
+  position:fixed;
+  top:0;
+  width:23px;
+  height:38px;
+  border-radius:10px;
+  background:#e99b53;
+  box-shadow:0 0 25px #ff9c4a;
+  opacity:.7;
+  pointer-events:none;
+  animation:swing 4s ease-in-out infinite alternate;
+}
+
+.l1{left:12%}.l2{left:48%;animation-delay:1s}.l3{right:12%;animation-delay:2s}
+
+@keyframes swing{
+  from{transform:rotate(-8deg)}
+  to{transform:rotate(8deg)}
+}
+
+footer{
+  text-align:center;
+  padding:30px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+@media(max-width:750px){
+  .app{display:block}
+  .sidebar{
+    position:relative;
+    height:auto;
+    padding:15px;
+  }
+  .nav{
+    display:flex;
+    overflow-x:auto;
+    padding-bottom:5px;
+  }
+  .nav button{white-space:nowrap;font-size:12px}
+  .main{padding:15px}
+  .topbar{align-items:flex-start}
+  .hero{min-height:290px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="lantern l1"></div>
+<div class="lantern l2"></div>
+<div class="lantern l3"></div>
+
+<div class="app">
+
+<aside class="sidebar">
+  <div class="logo">夜 Yoru no Kakurega ♡</div>
+  <div class="tagline">A SECRET WORLD, JUST FOR TWO</div>
+
+  <nav class="nav">
+    <button class="active" onclick="showPage('home',this)">☾ Home</button>
+    <button onclick="showPage('chat',this)">♡ Our Chat</button>
+    <button onclick="showPage('letters',this)">✉ Secret Letters</button>
+    <button onclick="showPage('questions',this)">❀ Question Jar</button>
+    <button onclick="showPage('memories',this)">📷 Memories</button>
+    <button onclick="showPage('timeline',this)">⌛ Timeline</button>
+    <button onclick="showPage('surprise',this)">🎁 Surprise</button>
+    <button onclick="showPage('studio',this)">🎨 Theme Studio</button>
+    <button onclick="showPage('music',this)">♫ Music Shrine</button>
+  </nav>
+
+  <div class="panel" style="margin-top:25px;padding:14px">
+    <div class="eyebrow">Current character</div>
+    <h3 id="sideCharacter">Zenitsu ⚡</h3>
+    <p class="small">Your little companion in this castle.</p>
+  </div>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Welcome to your private world</div>
+    <div id="welcomeName">Our Little Infinity Castle</div>
+  </div>
+  <div class="status">● Your secret world is open</div>
+</div>
+
+<!-- HOME -->
+<section id="home" class="page active">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">夜の秘密の場所</div>
+      <h1>Yoru no Kakurega ♡</h1>
+      <p>A Secret World, Just for Two.</p>
+      <button onclick="showPage('studio')">Explore Your Theme ✦</button>
+    </div>
+  </div>
+
+  <h2>Welcome to our little world</h2>
+  <div class="grid">
+    <div class="panel">
+      <h3>♡ Our Chat</h3>
+      <p class="small">A little space for conversations.</p>
+      <button onclick="showPage('chat')">Open Chat</button>
+    </div>
+    <div class="panel">
+      <h3>✉ Secret Letters</h3>
+      <p class="small">Words that deserve to be saved.</p>
+      <button onclick="showPage('letters')">Write a Letter</button>
+    </div>
+    <div class="panel">
+      <h3>📷 Memories</h3>
+      <p class="small">Keep your favourite moments close.</p>
+      <button onclick="showPage('memories')">Open Memories</button>
+    </div>
+  </div>
+</section>
+
+<!-- CHAT -->
+<section id="chat" class="page">
+  <h2>♡ Our Little Chat Room</h2>
+  <div class="panel">
+    <div class="eyebrow">A private conversation space</div>
+    <h3 id="chatCharacter">Zenitsu ♡</h3>
+    <div class="chatbox" id="chatMessages">
+      <div class="message">Welcome to our little room ♡<small>System</small></div>
+    </div>
+    <div class="row">
+      <input id="chatInput" placeholder="Write something sweet...">
+      <button onclick="sendMessage()">Send ↗</button>
+    </div>
+    <p class="small">Messages are saved in this browser only.</p>
+  </div>
+</section>
+
+<!-- LETTERS -->
+<section id="letters" class="page">
+  <h2>✉ Secret Letters</h2>
+  <div class="panel">
+    <label>Letter title</label>
+    <input id="letterTitle" placeholder="A little note for you...">
+    <label>Your letter</label>
+    <textarea id="letterText" placeholder="Write from your heart..."></textarea>
+    <button onclick="saveLetter()">Seal this letter ♡</button>
+  </div>
+  <div id="letterList"></div>
+</section>
+
+<!-- QUESTIONS -->
+<section id="questions" class="page">
+  <h2>❀ Question Jar</h2>
+  <div class="panel">
+    <p>Pick a little question and make a memory.</p>
+    <h3 id="questionText">Tap below to reveal a question ♡</h3>
+    <button onclick="newQuestion()">Pick a question ✨</button>
+  </div>
+</section>
+
+<!-- MEMORIES -->
+<section id="memories" class="page">
+  <h2>📷 Memory Gallery</h2>
+  <div class="panel">
+    <p>Add a picture to your little memory collection.</p>
+    <input type="file" id="memoryFile" accept="image/*">
+    <input id="memoryCaption" placeholder="Write a memory caption...">
+    <button onclick="saveMemory()">Save Memory ♡</button>
+  </div>
+  <div id="memoryList" class="grid"></div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline" class="page">
+  <h2>⌛ Our Little Timeline</h2>
+  <div class="panel">
+    <label>Memory date</label>
+    <input type="date" id="timelineDate">
+    <label>What happened?</label>
+    <textarea id="timelineText" placeholder="A moment worth remembering..."></textarea>
+    <button onclick="saveTimeline()">Add to Timeline ♡</button>
+  </div>
+  <div id="timelineList"></div>
+</section>
+
+<!-- SURPRISE -->
+<section id="surprise" class="page">
+  <h2>🎁 A Little Surprise</h2>
+  <div class="panel" style="text-align:center">
+    <div style="font-size:65px">🎐</div>
+    <h3 id="surpriseText">There is something special waiting for you.</h3>
+    <button onclick="revealSurprise()">Open your surprise ✨</button>
+  </div>
+</section>
+
+<!-- THEME STUDIO -->
+<section id="studio" class="page">
+  <h2>🎨 Infinity Castle — Theme Studio</h2>
+  <div class="panel">
+    <div class="eyebrow">Choose your companion</div>
+    <h3>Character Collection</h3>
+    <div class="character-grid" id="characterGrid"></div>
+
+    <label>Upload your own character picture</label>
+    <input type="file" id="characterUpload" accept="image/*">
+    <img id="characterPreview" class="preview" alt="Character preview" hidden>
+  </div>
+
+  <div class="panel">
+    <h3>Customize your castle colours</h3>
+    <label>Accent colour</label>
+    <input type="color" id="accentPicker" value="#d99a64">
+    <label>Secondary colour</label>
+    <input type="color" id="secondaryPicker" value="#e9a7a0">
+    <label>Background colour</label>
+    <input type="color" id="backgroundPicker" value="#100b0d">
+    <button onclick="applyTheme()">Apply My Theme ♡</button>
+    <button onclick="randomCharacter()">Surprise Me ✨</button>
+    <button onclick="resetTheme()">Reset Theme</button>
+  </div>
+</section>
+
+<!-- MUSIC -->
+<section id="music" class="page">
+  <h2>♫ Infinity Castle Music Shrine</h2>
+  <div class="panel">
+    <div class="eyebrow">A song for this little world</div>
+    <h3>Infinity Castle Theme</h3>
+    <p class="small">Press play to listen. Playback is provided through YouTube.</p>
+    <iframe
+      width="100%"
+      height="230"
+      src="https://www.youtube-nocookie.com/embed/2NihzptRjto"
+      title="Infinity Castle music"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+      style="border:0;border-radius:15px">
+    </iframe>
+  </div>
+</section>
+
+<footer>夜 Yoru no Kakurega ♡ — A Secret World, Just for Two.</footer>
+</main>
+</div>
+
+<script>
+const characters = [
+ ["Tanjiro","🔥","#b94b35","#e9a7a0"],
+ ["Nezuko","🎀","#b85b80","#f3b3c7"],
+ ["Zenitsu","⚡","#d9a13b","#f3d27b"],
+ ["Inosuke","🐗","#507caa","#9dc6e8"],
+ ["Kanao","🦋","#9d7acb","#d5b9f1"],
+ ["Genya","🌑","#62616c","#b5aabf"],
+ ["Giyu","🌊","#367c9c","#8cc6d8"],
+ ["Shinobu","🦋","#9166b2","#d9b3ed"],
+ ["Rengoku","🔥","#c35c36","#f3a75c"],
+ ["Mitsuri","💗","#bd668b","#f3a8c9"],
+ ["Obanai","🐍","#6b7d75","#a8c7ae"],
+ ["Sanemi","🌪️","#78966b","#c0d7a6"],
+ ["Muichiro","☁️","#6599a8","#a9d5df"],
+ ["Tengen","✨","#a27d9b","#e5b9cf"],
+ ["Gyomei","🪨","#88745c","#cbb99c"],
+ ["Muzan","🌹","#842d42","#d66a7f"],
+ ["Akaza","❄️","#6b77b9","#aebcf2"],
+ ["Doma","❄️","#6b9da7","#b4e4e6"],
+ ["Kokushibo","🌙","#8e554c","#d6a18f"],
+ ["Nakime","🎵","#8d6b9e","#c9a9dc"],
+ ["Kaigaku","⚡","#6d75a7","#aeb8e9"]
+];
+
+let selectedCharacter="Zenitsu";
+let uploadedCharacter="";
+let customCharacterImage="";
+
+function showPage(id,button){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+}
+
+function renderCharacters(){
+ const grid=document.getElementById("characterGrid");
+ grid.innerHTML="";
+ characters.forEach(c=>{
+  const div=document.createElement("div");
+  div.className="character"+(c[0]===selectedCharacter?" selected":"");
+  div.innerHTML=`<span class="emoji">${c[1]}</span><b>${c[0]}</b>`;
+  div.onclick=()=>selectCharacter(c[0]);
+  grid.appendChild(div);
+ });
+}
+
+function selectCharacter(name){
+ selectedCharacter=name;
+ const c=characters.find(x=>x[0]===name);
+ document.getElementById("sideCharacter").textContent=name+" "+c[1];
+ document.getElementById("chatCharacter").textContent=name+" ♡";
+ document.documentElement.style.setProperty("--accent",c[2]);
+ document.documentElement.style.setProperty("--accent2",c[3]);
+ document.getElementById("accentPicker").value=c[2];
+ document.getElementById("secondaryPicker").value=c[3];
+ localStorage.setItem("yoruCharacter",name);
+ renderCharacters();
+}
+
+function randomCharacter(){
+ const c=characters[Math.floor(Math.random()*characters.length)];
+ selectCharacter(c[0]);
+}
+
+function applyTheme(){
+ const a=document.getElementById("accentPicker").value;
+ const s=document.getElementById("secondaryPicker").value;
+ const b=document.getElementById("backgroundPicker").value;
+ document.documentElement.style.setProperty("--accent",a);
+ document.documentElement.style.setProperty("--accent2",s);
+ document.documentElement.style.setProperty("--bg",b);
+ document.body.style.background=b;
+ localStorage.setItem("yoruTheme",JSON.stringify({a,s,b}));
+}
+
+function resetTheme(){
+ localStorage.removeItem("yoruTheme");
+ document.documentElement.style.setProperty("--accent","#d99a64");
+ document.documentElement.style.setProperty("--accent2","#e9a7a0");
+ document.body.style.background="";
+ document.getElementById("accentPicker").value="#d99a64";
+ document.getElementById("secondaryPicker").value="#e9a7a0";
+ document.getElementById("backgroundPicker").value="#100b0d";
+}
+
+function sendMessage(){
+ const input=document.getElementById("chatInput");
+ const value=input.value.trim();
+ if(!value)return;
+ const messages=JSON.parse(localStorage.getItem("yoruChat")||"[]");
+ messages.push({text:value,time:new Date().toLocaleTimeString()});
+ localStorage.setItem("yoruChat",JSON.stringify(messages));
+ input.value="";
+ renderChat();
+}
+
+function renderChat(){
+ const box=document.getElementById("chatMessages");
+ const messages=JSON.parse(localStorage.getItem("yoruChat")||"[]");
+ box.innerHTML='<div class="message">Welcome to our little room ♡<small>System</small></div>';
+ messages.forEach(m=>{
+  const div=document.createElement("div");
+  div.className="message mine";
+  const content=document.createTextNode(m.text);
+  const time=document.createElement("small");
+  time.textContent=m.time;
+  div.append(content,time);
+  box.appendChild(div);
+ });
+ box.scrollTop=box.scrollHeight;
+}
+
+function saveLetter(){
+ const title=document.getElementById("letterTitle").value.trim();
+ const body=document.getElementById("letterText").value.trim();
+ if(!title||!body)return alert("Write your letter first ♡");
+ const list=JSON.parse(localStorage.getItem("yoruLetters")||"[]");
+ list.unshift({title,body,date:new Date().toLocaleDateString()});
+ localStorage.setItem("yoruLetters",JSON.stringify(list));
+ document.getElementById("letterTitle").value="";
+ document.getElementById("letterText").value="";
+ renderLetters();
+}
+
+function renderLetters(){
+ const list=JSON.parse(localStorage.getItem("yoruLetters")||"[]");
+ document.getElementById("letterList").innerHTML=list.map(l=>
+ `<div class="panel"><h3>${escapeHTML(l.title)}</h3><p>${escapeHTML(l.body).replace(/\n/g,"<br>")}</p><small>${l.date}</small></div>`
+ ).join("");
+}
+
+const questions=[
+ "What is your happiest memory?",
+ "What little thing always makes you smile?",
+ "Which place would you love to visit together?",
+ "What is one dream you never want to give up?",
+ "What makes a day feel special?",
+ "Which character reminds you of yourself?",
+ "What is something you are grateful for today?"
+];
+
+function newQuestion(){
+ document.getElementById("questionText").textContent=
+ questions[Math.floor(Math.random()*questions.length)];
+}
+
+function saveMemory(){
+ const file=document.getElementById("memoryFile").files[0];
+ const caption=document.getElementById("memoryCaption").value.trim();
+ if(!file)return alert("Choose a picture first.");
+ const reader=new FileReader();
+ reader.onload=()=>{
+  const list=JSON.parse(localStorage.getItem("yoruMemories")||"[]");
+  list.unshift({image:reader.result,caption});
+  try{
+   localStorage.setItem("yoruMemories",JSON.stringify(list));
+   renderMemories();
+  }catch(e){alert("Storage is full. Try a smaller image.");}
+ };
+ reader.readAsDataURL(file);
+}
+
+function renderMemories(){
+ const list=JSON.parse(localStorage.getItem("yoruMemories")||"[]");
+ document.getElementById("memoryList").innerHTML=list.map(m=>
+ `<div class="panel"><img class="preview" src="${m.image}" alt="Memory"><p>${escapeHTML(m.caption)}</p></div>`
+ ).join("");
+}
+
+function saveTimeline(){
+ const date=document.getElementById("timelineDate").value;
+ const story=document.getElementById("timelineText").value.trim();
+ if(!date||!story)return alert("Add a date and memory.");
+ const list=JSON.parse(localStorage.getItem("yoruTimeline")||"[]");
+ list.unshift({date,story});
+ localStorage.setItem("yoruTimeline",JSON.stringify(list));
+ document.getElementById("timelineDate").value="";
+ document.getElementById("timelineText").value="";
+ renderTimeline();
+}
+
+function renderTimeline(){
+ const list=JSON.parse(localStorage.getItem("yoruTimeline")||"[]");
+ document.getElementById("timelineList").innerHTML=list.map(x=>
+ `<div class="memory"><b>${escapeHTML(x.date)}</b><p>${escapeHTML(x.story)}</p></div>`
+ ).join("");
+}
+
+const surprises=[
+ "You make ordinary moments feel magical. ♡",
+ "Even the longest night has its own little stars. ✨",
+ "A little reminder: you are special.",
+ "Sending you a warm hug from this castle. 🎀",
+ "Some memories deserve to last forever. 🌙"
+];
+
+function revealSurprise(){
+ document.getElementById("surpriseText").textContent=
+ surprises[Math.floor(Math.random()*surprises.length)];
+}
+
+function escapeHTML(value){
+ return String(value).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+document.getElementById("characterUpload").addEventListener("change",e=>{
+ const file=e.target.files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  customCharacterImage=reader.result;
+  const preview=document.getElementById("characterPreview");
+  preview.src=customCharacterImage;
+  preview.hidden=false;
+  localStorage.setItem("yoruCustomCharacter",customCharacterImage);
+ };
+ reader.readAsDataURL(file);
+});
+
+function loadSavedData(){
+ const savedName=localStorage.getItem("yoruCharacter");
+ if(savedName&&characters.some(c=>c[0]===savedName))selectCharacter(savedName);
+ const theme=JSON.parse(localStorage.getItem("yoruTheme")||"null");
+ if(theme){
+  document.documentElement.style.setProperty("--accent",theme.a);
+  document.documentElement.style.setProperty("--accent2",theme.s);
+  document.body.style.background=theme.b;
+  document.getElementById("accentPicker").value=theme.a;
+  document.getElementById("secondaryPicker").value=theme.s;
+  document.getElementById("backgroundPicker").value=theme.b;
+ }
+ const image=localStorage.getItem("yoruCustomCharacter");
+ if(image){
+  document.getElementById("characterPreview").src=image;
+  document.getElementById("characterPreview").hidden=false;
+ }
+ renderChat();
+ renderLetters();
+ renderMemories();
+ renderTimeline();
+ renderCharacters();
+}
+
+loadSavedData();
+</script>
+
+</body>
+</html>
