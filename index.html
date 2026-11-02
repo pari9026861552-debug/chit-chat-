@@ -115,6 +115,8 @@ footer{text-align:center;padding:30px;color:var(--muted)}
 .character-card .portrait.failed img{display:none}
 .character-card .portrait.failed{border:1px solid color-mix(in srgb,var(--primary) 45%,transparent)}
 .character-card strong{display:block;margin:8px 0 2px;color:var(--text);font-size:14px}
+#characterImageUpload{padding:10px;background:#211b25}
+.upload-note{font-size:12px;color:var(--muted)}
 .character-card small{color:var(--muted)}
 #characterCollection{margin-top:18px}
 .effect-particle{position:fixed;top:-30px;left:var(--x);font-size:18px;pointer-events:none;z-index:20;animation:driftDown var(--dur) linear forwards;opacity:.8}
@@ -294,6 +296,19 @@ footer{text-align:center;padding:30px;color:var(--muted)}
  <h2>Choose Your Character</h2>
  <div id="characterCollection" class="character-grid"></div>
  <div class="card" style="margin-top:20px">
+  <h2>Upload Your Character Images 📷</h2>
+  <p>Apne device se kisi bhi character ki image upload karo. Pehle character select karo, phir image choose karo. Image sirf isi browser mein save hogi.</p>
+  <label for="uploadCharacterSelect">Select character</label>
+  <select id="uploadCharacterSelect"></select>
+  <label for="characterImageUpload">Choose character image</label>
+  <input id="characterImageUpload" type="file" accept="image/*" onchange="uploadCharacterImage()">
+  <div class="actions">
+   <button type="button" onclick="removeCharacterImage()">Remove uploaded image</button>
+   <button type="button" onclick="document.getElementById('characterImageUpload').click()">Choose image</button>
+  </div>
+  <p class="small" id="characterUploadStatus" aria-live="polite">JPG, PNG or WEBP · Recommended: clear full/half-body portrait.</p>
+ </div>
+ <div class="card" style="margin-top:20px">
   <h2>Personal Colours</h2>
   <label>Choose your primary colour</label>
   <input type="color" id="customColor" value="#d9a64e" onchange="customTheme(this.value)">
@@ -372,7 +387,9 @@ const characterData=[
 const officialImageBase='https://demonslayer-anime.com/infinitycastle/assets_1st/img/chara/';
 const themes=Object.fromEntries(characterData.map(c=>[c.id,c.colors]));
 let activeCharacter='tanjiro',characterMotion=true;
-function characterImage(c){return officialImageBase+c.img}
+let uploadedCharacterImages={};
+try{uploadedCharacterImages=JSON.parse(localStorage.getItem('yoruCharacterImages')||'{}')}catch(e){uploadedCharacterImages={}}
+function characterImage(c){return uploadedCharacterImages[c.id]||officialImageBase+c.img}
 function characterGlyph(id){
  const glyphs={tanjiro:'🔥',nezuko:'🎋',zenitsu:'⚡',inosuke:'🐗',kanao:'🦋',genya:'🌑',giyu:'🌊',muichiro:'☁️',shinobu:'🦋',mitsuri:'💗',obanai:'🐍',sanemi:'🍃',gyomei:'🪨',tengen:'✨',muzan:'🌹',kokushibo:'🌙',doma:'❄️',akaza:'🥊',nakime:'🎼',kaigaku:'⚡'};
  return glyphs[id]||'🌸';
@@ -380,7 +397,48 @@ function characterGlyph(id){
 function attachPortraitFallback(img){img.addEventListener('error',()=>{img.dataset.failed='true';img.style.opacity='0';img.title='Online portrait unavailable; decorative character emblem shown.';});}
 function renderCharacterCollection(){
  const host=document.getElementById('characterCollection');
- host.innerHTML=characterData.map(c=>`<button class="card character-card" onclick="setTheme('${c.id}')"><span class="portrait"><span class="portrait-fallback" aria-hidden="true">${characterGlyph(c.id)}</span><img loading="lazy" src="${characterImage(c)}" alt="${c.name}" onerror="this.parentElement.classList.add('failed')"></span><strong>${c.name}</strong><small>${c.role.split(' · ')[0]}</small></button>`).join('');
+ host.innerHTML=characterData.map(c=>`<button class="card character-card" onclick="setTheme('${c.id}')"><span class="portrait"><span class="portrait-fallback" aria-hidden="true">${characterGlyph(c.id)}</span><img loading="lazy" src="${characterImage(c)}" alt="${c.name}" onerror="this.parentElement.classList.add('failed')"></span><strong>${c.name}</strong><small>${uploadedCharacterImages[c.id]?'Your uploaded image':'Official portrait'}</small></button>`).join('');
+ const select=document.getElementById('uploadCharacterSelect');
+ if(select){const previous=select.value;select.innerHTML=characterData.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');select.value=characterData.some(c=>c.id===previous)?previous:activeCharacter;}
+}
+function uploadCharacterImage(){
+ const picker=document.getElementById('characterImageUpload');
+ const file=picker.files&&picker.files[0];
+ const id=document.getElementById('uploadCharacterSelect').value;
+ const status=document.getElementById('characterUploadStatus');
+ if(!file)return;
+ if(!file.type.startsWith('image/')){status.textContent='Please choose an image file.';return;}
+ if(file.size>12*1024*1024){status.textContent='Image is too large. Please choose an image under 12 MB.';picker.value='';return;}
+ const reader=new FileReader();
+ reader.onload=()=>{
+  const img=new Image();
+  img.onload=()=>{
+   const max=1000,scale=Math.min(1,max/Math.max(img.width,img.height));
+   const canvas=document.createElement('canvas');canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
+   const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);
+   const data=canvas.toDataURL('image/jpeg',0.82);
+   uploadedCharacterImages[id]=data;
+   try{localStorage.setItem('yoruCharacterImages',JSON.stringify(uploadedCharacterImages));}
+   catch(e){delete uploadedCharacterImages[id];status.textContent='Browser storage is full. Try a smaller image.';return;}
+   renderCharacterCollection();
+   if(activeCharacter===id)setTheme(id);
+   status.textContent='Image uploaded for '+characterData.find(c=>c.id===id).name+' ♡';
+   picker.value='';
+  };
+  img.onerror=()=>status.textContent='Could not read this image. Try another file.';
+  img.src=reader.result;
+ };
+ reader.onerror=()=>status.textContent='Could not load this file. Please try again.';
+ reader.readAsDataURL(file);
+}
+function removeCharacterImage(){
+ const id=document.getElementById('uploadCharacterSelect').value;
+ if(!uploadedCharacterImages[id]){document.getElementById('characterUploadStatus').textContent='No uploaded image for this character.';return;}
+ delete uploadedCharacterImages[id];
+ try{localStorage.setItem('yoruCharacterImages',JSON.stringify(uploadedCharacterImages));}catch(e){}
+ renderCharacterCollection();
+ if(activeCharacter===id)setTheme(id);
+ document.getElementById('characterUploadStatus').textContent='Uploaded image removed. Official portrait restored.';
 }
 function setTheme(name){
  const c=characterData.find(x=>x.id===name);if(!c)return;
